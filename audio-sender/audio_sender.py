@@ -7,8 +7,7 @@ import websocket
 
 FLAGS = gflags.FLAGS
 
-gflags.DEFINE_string("host", None, "Hostname of audio-server.")
-gflags.DEFINE_string("index", None, "Index of this robot.")
+gflags.DEFINE_string("server", None, "e.g. ws://hoge:5000/audio")
 
 
 PERIODSIZE = 1024   # CHUNK
@@ -28,8 +27,7 @@ def main(argv):
 
     inp.setperiodsize(PERIODSIZE)
 
-    ws = websocket.create_connection(
-        'ws://%s/robo/%s' % (FLAGS.host, FLAGS.index))
+    ws = websocket.create_connection(FLAGS.server)
 
     while True:
         l, data = inp.read()
