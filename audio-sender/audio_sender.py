@@ -2,11 +2,12 @@
 
 import alsaaudio
 import gflags
+import sys
 import websocket
 
 FLAGS = gflags.FLAGS
 
-gflags.DEFINE_string("server", None, "URL to audio-server.")
+gflags.DEFINE_string("host", None, "Hostname of audio-server.")
 gflags.DEFINE_string("index", None, "Index of this robot.")
 
 
@@ -16,20 +17,26 @@ CHANNELS = 1
 RATE = 44100
 RECORD_SECONDS = 5
 
-inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL)
 
-inp.setchannels(CHANNELS)
-inp.setrate(RATE)
-inp.setformat(FORMAT)
+def main(argv):
+    argv = gflags.FLAGS(argv)
+    inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL)
 
-inp.setperiodsize(PERIODSIZE)
+    inp.setchannels(CHANNELS)
+    inp.setrate(RATE)
+    inp.setformat(FORMAT)
 
-ws = websocket.create_connection(
-    'ws://%s/robo/%s' % (FLAGS.server, FLAGS.index))
+    inp.setperiodsize(PERIODSIZE)
 
-while True:
-    l, data = inp.read()
-    ws.send_binary(data)
+    ws = websocket.create_connection(
+        'ws://%s/robo/%s' % (FLAGS.host, FLAGS.index))
 
-ws.close()
-inp.pause()
+    while True:
+        l, data = inp.read()
+        ws.send_binary(data)
+
+    ws.close()
+    inp.pause()
+
+if __name__ == '__main__':
+    main(sys.argv)
