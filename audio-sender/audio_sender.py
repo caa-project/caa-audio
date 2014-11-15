@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import alsaaudio
+import gflags
 import websocket
 
-HOST = '==INPUT YOUR SERVER ADDRESS=='
-INDEX = 1024
+FLAGS = gflags.FLAGS
 
-PERIODSIZE = 1024 # CHUNK
+gflags.DEFINE_string("server", None, "URL to audio-server.")
+gflags.DEFINE_string("index", None, "Index of this robot.")
+
+
+PERIODSIZE = 1024   # CHUNK
 FORMAT = alsaaudio.PCM_FORMAT_S16_LE
 CHANNELS = 1
 RATE = 44100
@@ -20,7 +24,8 @@ inp.setformat(FORMAT)
 
 inp.setperiodsize(PERIODSIZE)
 
-ws = websocket.create_connection('ws://%s/robo/%s' % (HOST, INDEX))
+ws = websocket.create_connection(
+    'ws://%s/robo/%s' % (FLAGS.server, FLAGS.index))
 
 while True:
     l, data = inp.read()
