@@ -1,30 +1,40 @@
 # -*- coding: utf-8 -*-
 
 import alsaaudio
+import gflags
+import sys
 import websocket
 
-HOST = '==INPUT YOUR SERVER ADDRESS=='
-INDEX = 1024
+FLAGS = gflags.FLAGS
 
-PERIODSIZE = 1024 # CHUNK
+gflags.DEFINE_string("server", None, "e.g. ws://hoge:5000/audio")
+
+
+PERIODSIZE = 1024   # CHUNK
 FORMAT = alsaaudio.PCM_FORMAT_S16_LE
 CHANNELS = 1
 RATE = 44100
 RECORD_SECONDS = 5
 
-inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL)
 
-inp.setchannels(CHANNELS)
-inp.setrate(RATE)
-inp.setformat(FORMAT)
+def main(argv):
+    argv = gflags.FLAGS(argv)
+    inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL)
 
-inp.setperiodsize(PERIODSIZE)
+    inp.setchannels(CHANNELS)
+    inp.setrate(RATE)
+    inp.setformat(FORMAT)
 
-ws = websocket.create_connection('ws://%s/robo/%s' % (HOST, INDEX))
+    inp.setperiodsize(PERIODSIZE)
 
-while True:
-    l, data = inp.read()
-    ws.send_binary(data)
+    ws = websocket.create_connection(FLAGS.server)
 
-ws.close()
-inp.pause()
+    while True:
+        l, data = inp.read()
+        ws.send_binary(data)
+
+    ws.close()
+    inp.pause()
+
+if __name__ == '__main__':
+    main(sys.argv)
