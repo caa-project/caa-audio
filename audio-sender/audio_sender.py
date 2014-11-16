@@ -8,6 +8,7 @@ import websocket
 FLAGS = gflags.FLAGS
 
 gflags.DEFINE_string("server", None, "e.g. ws://hoge:5000/audio")
+gflags.DEFINE_string("card", "default", "A sound card index")
 
 
 PERIODSIZE = 1024   # CHUNK
@@ -19,7 +20,8 @@ RECORD_SECONDS = 5
 
 def main(argv):
     argv = gflags.FLAGS(argv)
-    inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL)
+    inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE,
+            alsaaudio.PCM_NORMAL, FLAGS.card)
 
     inp.setchannels(CHANNELS)
     inp.setrate(RATE)
