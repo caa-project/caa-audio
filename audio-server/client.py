@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import websocket
+import datetime
 import time
 import wave
 import pyaudio
@@ -13,8 +14,8 @@ if len(sys.argv) < 2:
 host = sys.argv[1]
 index = sys.argv[2]
 
-CHUNK = 1024
 FORMAT = pyaudio.paInt16
+#FORMAT = pyaudio.paFloat32
 RATE = 44100
 
 p = pyaudio.PyAudio()
@@ -24,8 +25,18 @@ stream = p.open(
         rate=RATE,
         output=True)
 
+initial_delay_sec = datetime.timedelta(seconds=2.0);
+
 def on_message(ws, message):
-    stream.write(message)
+    current_time = datetime.datetime.now()
+    duration = datetime.timedelta(seconds=1.0/RATE*len(message)/2)
+    if current_time < ws.scheduled_time:
+        time.sleep((ws.scheduled_time - current_time).total_seconds())
+        stream.write(message)
+        ws.scheduled_time += duration
+    else:
+        stream.write(message)
+        ws.scheduled_time = current_time + duration + initial_delay_sec
 
 def on_close(ws):
     print '[on close]'
@@ -38,6 +49,7 @@ while True:
         ws = websocket.WebSocketApp('ws://%s/user/%s' % (host, index),
                 on_message=on_message,
                 on_close=on_close)
+        ws.scheduled_time = datetime.datetime.now() + initial_delay_sec
         ws.on_open = on_open
         ws.run_forever()
         time.sleep(1)
