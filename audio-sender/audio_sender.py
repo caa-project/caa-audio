@@ -14,7 +14,6 @@ gflags.DEFINE_string("card", "default", "A sound card index")
 
 PERIODSIZE = 1024*4   # CHUNK
 FORMAT = alsaaudio.PCM_FORMAT_S16_LE
-#FORMAT = alsaaudio.PCM_FORMAT_FLOAT_LE
 CHANNELS = 1
 RATE = 44100
 
@@ -33,6 +32,7 @@ def main(argv):
     def signal_term_handler(signal, frame):
         ws.close()
         sys.exit(0)
+    signal.signal(signal.SIGTERM, signal_term_handler)
 
     try:
         while True:
