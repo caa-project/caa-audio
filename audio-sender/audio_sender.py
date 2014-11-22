@@ -10,12 +10,12 @@ FLAGS = gflags.FLAGS
 
 gflags.DEFINE_string("server", None, "e.g. ws://hoge:5000/audio")
 gflags.DEFINE_string("card", "default", "A sound card index")
+gflags.DEFINE_integer("chunk", 1024, "the period size")
+gflags.DEFINE_integer("channels", 1, "the number of channel")
+gflags.DEFINE_integer("rate", 44100, "the sampling rate")
 
 
-PERIODSIZE = 1024*4   # CHUNK
 FORMAT = alsaaudio.PCM_FORMAT_S16_LE
-#FORMAT = alsaaudio.PCM_FORMAT_FLOAT_LE
-CHANNELS = 1
 RATE = 44100
 
 def main(argv):
@@ -23,11 +23,11 @@ def main(argv):
     inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE,
             alsaaudio.PCM_NONBLOCK, FLAGS.card)
 
-    inp.setchannels(CHANNELS)
-    inp.setrate(RATE)
+    inp.setchannels(FLAGS.channels)
+    inp.setrate(FLAGS.rate)
     inp.setformat(FORMAT)
 
-    inp.setperiodsize(PERIODSIZE)
+    inp.setperiodsize(FLAGS.chunk)
     ws = websocket.create_connection(FLAGS.server)
 
     def signal_term_handler(signal, frame):
