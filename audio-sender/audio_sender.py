@@ -33,6 +33,7 @@ def main(argv):
     def signal_term_handler(signal, frame):
         ws.close()
         sys.exit(0)
+    signal.signal(signal.SIGTERM, signal_term_handler)
 
     try:
         while True:
