@@ -26,7 +26,7 @@ class HandlerContainer:
         index = handler.index
         if index not in self._handlers:
             self._handlers[index] = [handler, None]
-        elif self._handlers[index][0] is not None:
+        elif self._handlers[index][0] is None:
             self._handlers[index][0] = handler
 
     @synchronized
@@ -42,7 +42,7 @@ class HandlerContainer:
         index = handler.index
         if index not in self._handlers:
             self._handlers[index] = [None, handler]
-        elif self._handlers[index][1] is not None:
+        elif self._handlers[index][1] is None:
             self._handlers[index][1] = handler
 
     @synchronized
