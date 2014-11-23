@@ -13,6 +13,7 @@ gflags.DEFINE_string("card", "default", "A sound card index")
 gflags.DEFINE_integer("chunk", 1024, "the period size")
 gflags.DEFINE_integer("channels", 1, "the number of channel")
 gflags.DEFINE_integer("rate", 44100, "the sampling rate")
+# Typical values => 8000(telephone), 16000,  44100(CD), 96000
 
 
 FORMAT = alsaaudio.PCM_FORMAT_S16_LE
