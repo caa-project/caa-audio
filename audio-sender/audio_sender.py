@@ -5,6 +5,7 @@ import gflags
 import sys
 import signal
 import websocket
+import time
 
 FLAGS = gflags.FLAGS
 
@@ -27,21 +28,26 @@ def main(argv):
     inp.setformat(FORMAT)
 
     inp.setperiodsize(PERIODSIZE)
-    ws = websocket.create_connection(FLAGS.server)
+
+    ws = None
 
     def signal_term_handler(signal, frame):
         ws.close()
         sys.exit(0)
     signal.signal(signal.SIGTERM, signal_term_handler)
 
-    try:
-        while True:
-            l, data = inp.read()
-            if l <= 0:
-                continue
-            ws.send_binary(data)
-    except KeyboardInterrupt:
-        ws.close()
+    while True:
+        try:
+            ws = websocket.create_connection(FLAGS.server)
+            while ws.connected:
+                l, data = inp.read()
+                if l <= 0:
+                    continue
+                ws.send_binary(data)
+            time.sleep(1) # wait for reconnecting
+        except KeyboardInterrupt:
+            ws.close()
+            break
 
 if __name__ == '__main__':
     main(sys.argv)
