@@ -17,7 +17,6 @@ gflags.DEFINE_integer("rate", 44100, "the sampling rate")
 
 
 FORMAT = alsaaudio.PCM_FORMAT_S16_LE
-RATE = 44100
 
 def main(argv):
     argv = gflags.FLAGS(argv)
