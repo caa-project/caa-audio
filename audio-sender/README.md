@@ -19,6 +19,6 @@
 # Usage
 
     ```
-    $ SOUNDCARD=/etc/proc/asound/cardsで確認できるマイクのサウンドカード名
+    $ SOUNDCARD=`sudo aplay -L`で確認できるマイクのサウンドカード名
     $ python audio-sender.py --server=server_api_address --card=$SOUNDCARD
     ```
