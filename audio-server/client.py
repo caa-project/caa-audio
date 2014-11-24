@@ -8,14 +8,18 @@ import wave
 import pyaudio
 import sys
 
+FLAGS = gflags.FLAGS
+
 gflags.DEFINE_float("delay", 0.1, "the initial delay")
 gflags.DEFINE_string("server", None, "the server address")
+gflags.DEFINE_integer("rate", 44100, "the sampling rate")
+# Typical values => 8000(telephone), 16000,  44100(CD), 96000
 
 def main(argv):
     argv = gflags.FLAGS(argv)
 
     FORMAT = pyaudio.paInt16
-    RATE = 44100
+    RATE = FLAGS.rate
 
     p = pyaudio.PyAudio()
     stream = p.open(
@@ -24,11 +28,12 @@ def main(argv):
             rate=RATE,
             output=True)
 
-    initial_delay_sec = datetime.timedelta(seconds=gflags.FLAGS.delay);
+    initial_delay_sec = datetime.timedelta(seconds=FLAGS.delay);
 
     def on_message(ws, message):
         current_time = datetime.datetime.now()
-        duration = datetime.timedelta(seconds=1.0/RATE*len(message)/2)
+        sleep_time = 0.5/RATE*len(message)
+        duration = datetime.timedelta(seconds=sleep_time)
         if current_time < ws.scheduled_time:
             time.sleep((ws.scheduled_time - current_time).total_seconds())
             stream.write(message)
@@ -45,7 +50,7 @@ def main(argv):
 
     while True:
         try:
-            ws = websocket.WebSocketApp(gflags.FLAGS.server,
+            ws = websocket.WebSocketApp(FLAGS.server,
                     on_message=on_message,
                     on_close=on_close)
             ws.scheduled_time = datetime.datetime.now() + initial_delay_sec
