@@ -13,6 +13,7 @@ def synchronized(fun):
             return fun(self, *args, **kwargs)
     return wrap
 
+
 class HandlerContainer:
 
     _instance = None
@@ -58,6 +59,10 @@ class HandlerContainer:
             return
         self._handlers[index][1].write_message(message, binary=True)
 
+    def connection(self):
+        """接続状況を文字列で返す"""
+        return str(self._handlers)
+
     @classmethod
     def instance(cls):
         if cls._instance is None:
@@ -88,10 +93,18 @@ class SoundSendHandler(tornado.websocket.WebSocketHandler):
         HandlerContainer.instance().remove_send_handler(self.index)
 
 
+class ViewConnectionHandler(tornado.web.RequestHandler):
+
+    def get(self):
+        c = HandlerContainer.instance()
+        self.write(c.connection())
+
+
 def start_server(port):
     app = tornado.web.Application([
         (r"/robo/([0-9a-zA-Z]+)", SoundRecieveHandler),
-        (r"/user/([0-9a-zA-Z]+)", SoundSendHandler)
+        (r"/user/([0-9a-zA-Z]+)", SoundSendHandler),
+        (r"/connection", ViewConnectionHandler)
     ])
     http_server = tornado.httpserver.HTTPServer(app)
     http_server.listen(port)
